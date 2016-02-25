@@ -1,0 +1,6 @@
+Hacer Crud de:
+    Categoria
+    Producto
+    Cliente
+    Proveedor
+
