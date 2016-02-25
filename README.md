@@ -1,3 +1,2 @@
 # inventario
-Inventario app
-Se cago la perra
+bla bla bla
