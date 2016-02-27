@@ -3,3 +3,7 @@ __pycache__
 myvenv
 db.sqlite3
 .DS_Store
+.idea
+control system v 1.sql
+control system.sql
+control system.jpg
