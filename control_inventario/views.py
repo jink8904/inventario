@@ -419,12 +419,14 @@ def salida_mercancia(request):
     cliente_list = emp.cliente_set.values()
     producto_list = update_prod_list(emp)
     venta_list = update_venta_list(emp)
+    tipo_operacion_list = models.TipoOperacion.objects.values()
 
     args = {}
     args["comprobante_list"] = comprobante_list
     args["cliente_list"] = cliente_list
     args["producto_list"] = producto_list
     args["venta_list"] = venta_list
+    args["tipo_operacion_list"] = tipo_operacion_list
     return render_to_response('salida_mercancia/salida_mercancia.html', args, context_instance=RequestContext(request))
 
 
@@ -529,12 +531,15 @@ def entrada_mercancia(request):
     proveedor_list = emp.proveedor_set.values()
     producto_list = update_prod_list(emp)
     compra_list = update_compra_list(emp)
+    tipo_operacion_list = models.TipoOperacion.objects.values()
 
     args = {}
     args["comprobante_list"] = comprobante_list
     args["proveedor_list"] = proveedor_list
     args["producto_list"] = producto_list
     args["compra_list"] = compra_list
+    args["tipo_operacion_list"] = tipo_operacion_list
+
     return render_to_response('entrada_mercancia/entrada_mercancia.html', args,
                               context_instance=RequestContext(request))
 
@@ -612,3 +617,12 @@ def detalle_compra(request):
     args['success'] = True
     json_data = json.dumps(args)
     return HttpResponse(json_data, mimetype="application/json")
+
+# ------------ Registro de ventas -----------------
+def registro_ventas(request):
+    id_empresa = request.session['empresa']["id"]
+    emp = models.Empresa.objects.get(id=id_empresa)
+
+    args = {}
+    return render_to_response('registro_ventas/registro_ventas.html', args,
+                              context_instance=RequestContext(request))

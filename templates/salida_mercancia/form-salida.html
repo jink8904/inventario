@@ -8,7 +8,7 @@
             <label>Tipo de comprobante:</label>
 
             <div>
-                <select id="tipo-comprobante-id" name="tipo-comprobante">
+                <select name="tipo-comprobante">
                     <option></option>
                     {% for tipo_comprobante in comprobante_list %}
                         <option value="{{ tipo_comprobante.id }}">{{ tipo_comprobante.denominacion }}</option>
@@ -20,8 +20,9 @@
             {#Fecha#}
             <label>Fecha:</label>
 
-            <div>
-                <input type="text" name="fecha" class="form-control" value="2016-02-21">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="icon-calendar3"></i></span>
+                <input type="text" name="fecha" class="form-control pickadate picker__input picker__input--active">
             </div>
         </div>
         {#Serie#}
@@ -59,7 +60,7 @@
 
             <div>
                 <select name="nombre" maxlength="30">
-                    <option></option>
+                    <option value="0"></option>
                     {% for cliente in cliente_list %}
                         <option value="{{ cliente.id }}">{{ cliente.nombre }}</option>
                     {% endfor %}
@@ -79,9 +80,9 @@
 
             <div>
                 <select name="codigo">
-                    <option></option>
+                    <option value="0"></option>
                     {% for producto in producto_list %}
-                        <option value="{{ producto.id }}">{{ producto.codigo }}</option>
+                        <option value="{{ producto.id }}" stock="{{ producto.stock }}">{{ producto.codigo }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -99,7 +100,12 @@
             <label>Producto:</label>
 
             <div>
-                <input type="text" name="producto" class="form-control">
+                <select name="producto">
+                    <option value="0"></option>
+                    {% for producto in producto_list %}
+                        <option value="{{ producto.id }}" stock="{{ producto.stock }}">{{ producto.nombre }}</option>
+                    {% endfor %}
+                </select>
             </div>
         </div>
         {#Tipo de opreacion#}
@@ -107,7 +113,12 @@
             <label>Tipo de operaci&oacute;n:</label>
 
             <div>
-                <input type="text" name="tipo-opreacion" class="form-control">
+                <select name="tipo-operacion" id="tipo-comprobante-id">
+                    <option value="0"></option>
+                    {% for operacion in tipo_operacion_list %}
+                        <option value="{{ operacion.id }}">{{ operacion.denominacion }}</option>
+                    {% endfor %}
+                </select>
             </div>
         </div>
         {#IGV#}
@@ -116,11 +127,13 @@
 
             <div class="input-group col-md-12">
                 <span class="input-group-addon">
-                    <div class="checker"><span class=""><input type="checkbox" checked="checked"
-                                                               name="input-addon-checkbox" class="styled"></span>
+                    <div class="checker">
+                        <span class="checked">
+                            <input type="checkbox" checked="checked" name="igv-checkbox" class="styled">
+                        </span>
                     </div>
                 </span>
-                <input type="text" name="igv" class="form-control" value="18">
+                <input type="text" name="igv" class="form-control" value="18" readonly>
             </div>
         </div>
         {#Cantidad#}
@@ -197,5 +210,5 @@
             </div>
         </div>
     </fieldset>
-    <button class="btn btn-primary col-md-12" type="submit" id="del-detalle-venta">Eliminar detalle</button>
+    <button class="btn btn-primary col-md-12 disabled" type="submit" id="del-detalle-venta">Eliminar detalle</button>
 </div>

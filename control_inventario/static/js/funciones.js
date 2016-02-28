@@ -9,7 +9,11 @@ var empresa_seleccionada = null;
 var getRecord = function (table_id) {
     var record = {};
     $("#" + table_id + " tr.active > td").each(function (index, th) {
-        var key = checkKey($(this).attr("key"));
+        var key = "";
+        if ($(this).attr("key"))
+            key = checkKey($(this).attr("key"));
+        else if ($(this).attr("name"))
+            key = checkKey($(this).attr("name"));
         record[key] = $(this).html()
     });
     return record;
@@ -78,7 +82,13 @@ var updateButtons = function (table_id) {
 
 var selEmpresa = function () {
     empresa_seleccionada = getRecord("tabla-empresa");
+    console.log(empresa_seleccionada);
+    mes = $("select[name=mes]").val();
+    mes_mostrar = $("select[name=mes]>option[value=" + mes + "]").html();
     sessionStorage.setItem("empresa", JSON.stringify(empresa_seleccionada));
+    sessionStorage.setItem("anno", empresa_seleccionada.anno_inicio);
+    sessionStorage.setItem("mes", mes);
+    sessionStorage.setItem("mes_mostrar", mes_mostrar);
 
     token = $("#navtb-empresa input[name=csrfmiddlewaretoken]").attr("value");
     $.ajax({
@@ -88,7 +98,8 @@ var selEmpresa = function () {
         async: true,
         data: {
             csrfmiddlewaretoken: token,
-            empresa: empresa_seleccionada
+            empresa: empresa_seleccionada,
+            mes: mes
         },
         success: function (data) {
             $(location).attr("href", "../");
@@ -100,10 +111,14 @@ var selEmpresa = function () {
 var updateFooter = function () {
     var empresa = $.parseJSON(sessionStorage.getItem("empresa"));
     var usuario = sessionStorage.getItem("usuario");
+    var anno = sessionStorage.getItem("anno");
+    var mes = sessionStorage.getItem("mes_mostrar");
     if (empresa)
         $("#empresa a").html("   " + empresa.nombre);
     if (usuario)
         $("#usuario a").html("   " + usuario);
+    if (mes)
+        $("#periodo a").html("   " + mes + ", " + anno);
 }
 
 
@@ -123,22 +138,40 @@ var llenarDatosProducto = function (id, selector_id) {
     var productos = $('span[productos]').attr('productos');
     var str = cambiarComillas(productos);
     productos = $.parseJSON(str);
-    for (var i in productos) {
-        var producto = productos[i]
-        if (producto.id == id) {
-            $(selector_id + " input[name=producto]").val(producto.nombre)
-            $(selector_id + " input[name=stock]").val(producto.stock)
-        }
+    if (id == 0) {
+        $(selector_id + " [name=producto]").val("")
+        $(selector_id + " [name=codigo]").val("")
+        $(selector_id + " [name=stock]").val("")
+    } else {
+        $(selector_id + " [name=producto]").val(id)
+        $(selector_id + " [name=codigo]").val(id)
+        var stock = $(selector_id + " [name=codigo]>option[value=" + id + "]").attr("stock");
+        $(selector_id + " [name=stock]").val(stock)
+
     }
 
 }
 
+
 detalle_venta_actual = {}
+detalle_compra_actual = {}
+var limpiarCamposAddDet = function (tipo) {
+    $("#datos-producto-" + tipo + " [name=cantidad]").val("");
+    $("#importes-unitarios-" + tipo + " input").val("");
+    $("#importes-totales-" + tipo + " input").val("");
+    detalle_venta_actual = null;
+    detalle_compra_actual = null;
+}
+
+//------Salida de mercancia---
 var llenarDatosImportesVenta = function () {
+    var igv = $("#datos-producto-salida input[name=igv]").val();
+    if ($("#datos-producto-salida [name=igv-checkbox]").val() == 'off')
+        igv = 0
+
     var cant = $("#datos-producto-salida input[name=cantidad]").val(),
-        igv = $("#datos-producto-salida input[name=igv]").val(),
         valor_unitario = $("#importes-unitarios-salida input[name=valor-unitario]").val(),
-        igv_unitario = igv * cant,
+        igv_unitario = igv * valor_unitario,
         precio_unitario = igv_unitario + parseInt(valor_unitario),
         valor_venta = cant * valor_unitario,
         igv_total = cant * igv_unitario,
@@ -154,40 +187,54 @@ var llenarDatosImportesVenta = function () {
         igv_total: igv_total,
         precio_venta: precio_venta
     }
-    if (!cant || !valor_unitario)
+    if (!cant || !valor_unitario) {
         alert("Los campos cantidad y valor unitario no deben estar vacios");
-    else {
+        return false;
+    } else {
         $("#importes-unitarios-salida input[name=igv-unitario]").val(igv_unitario);
         $("#importes-unitarios-salida input[name=precio-unitario]").val(precio_unitario);
         $(" #importes-totales-salida input[name=valor-venta]").val(valor_venta);
         $("#importes-totales-salida input[name=igv-total]").val(igv_total);
         $("#importes-totales-salida input[name=precio-venta]").val(precio_venta);
+        return true;
     }
 }
 
 detalle_venta_list = {};
 var addDetalleVenta = function () {
-    var prod_id = $("#datos-producto-salida [name=codigo]").val();
-    var codigo = $("#datos-producto-salida [name=codigo] option[value=" + prod_id + "]").html();
-    detalle_venta_list[prod_id] = detalle_venta_actual;
-    var det = '<tr>' +
-        '<td name="producto">' + codigo + '</td>' +
-        '<td name="codigo">' + $("#datos-producto-salida [name=producto]").val() + '</td>' +
-        '<td name="cantidad">' + detalle_venta_actual.cant + '</td>' +
-        '<td name="valor_unitario">' + detalle_venta_actual.valor_unitario + '</td>' +
-        '<td name="valor_venta">' + detalle_venta_actual.valor_venta + '</td>' +
-        '<td name="igv_total">' + detalle_venta_actual.igv_total + '</td>' +
-        '<td name="precio_venta">' + detalle_venta_actual.precio_venta + '</td>' +
-        '</tr>'
-    $("#tabla-detalle-venta").removeClass("hidden");
-    $(det).appendTo("#tabla-detalle-venta>tbody");
+    no_error = llenarDatosImportesVenta();
+    if (no_error && detalle_venta_actual) {
+        var prod_id = $("#datos-producto-salida [name=codigo]").val();
+        var codigo = $("#datos-producto-salida [name=codigo] option[value=" + prod_id + "]").html();
+        detalle_venta_list[prod_id] = detalle_venta_actual;
+        var det = '<tr>' +
+            '<td name="producto">' + codigo + '</td>' +
+            '<td name="codigo">' + $("#datos-producto-salida [name=producto]").val() + '</td>' +
+            '<td name="cantidad">' + detalle_venta_actual.cant + '</td>' +
+            '<td name="valor_unitario">' + detalle_venta_actual.valor_unitario + '</td>' +
+            '<td name="valor_venta">' + detalle_venta_actual.valor_venta + '</td>' +
+            '<td name="igv_total">' + detalle_venta_actual.igv_total + '</td>' +
+            '<td name="precio_venta">' + detalle_venta_actual.precio_venta + '</td>' +
+            '</tr>'
+        $("#tabla-detalle-venta").removeClass("hidden");
+        $(det).appendTo("#tabla-detalle-venta>tbody").click(function (ev) {
+            cleanData("table", "tabla-detalle-venta");
+            $(this).addClass("active");
+            $("#del-detalle-venta").removeClass("disabled");
+        });
+        limpiarCamposAddDet("salida");
+    }
+}
 
+var eliminarDetalleVenta = function () {
+    $("#tabla-detalle-venta>tbody>tr.active").remove();
 }
 
 var addSalidaMercancia = function () {
+    var fecha = $("#datos-comprobante-salida [name=fecha]").attr("value");
     datos_venta = {
         tipo_comprobante: $("#datos-comprobante-salida [name=tipo-comprobante]").val(),
-        fecha: $("#datos-comprobante-salida [name=fecha]").val(),
+        fecha: fecha,
         serie: $("#datos-comprobante-salida [name=serie]").val(),
         numero: $("#datos-comprobante-salida [name=numero]").val(),
         cliente: $("#datos-comprobante-salida [name=identificador]").val(),
@@ -222,8 +269,6 @@ var verDetallesVenta = function () {
             id_venta: venta.id,
         },
         success: function (data) {
-            //$(location).attr("href", "/salida");
-            console.log(data);
             $("#tabla-d-venta-modal>tbody>tr").each(function (index, th) {
                 $(th).remove();
             })
@@ -246,12 +291,14 @@ var verDetallesVenta = function () {
     })
 }
 
-detalle_compra_actual = {}
+//--------- Entrada de mercancia ---------
 var llenarDatosImportesCompra = function () {
+    var igv = $("#datos-producto-entrada input[name=igv]").val();
+    if ($("#datos-producto-entrada [name=igv-checkbox]").val() == 'off')
+        igv = 0
     var cant = $("#datos-producto-entrada input[name=cantidad]").val(),
-        igv = $("#datos-producto-entrada input[name=igv]").val(),
         valor_unitario = $("#importes-unitarios-entrada input[name=valor-unitario]").val(),
-        igv_unitario = igv * cant,
+        igv_unitario = igv * valor_unitario,
         precio_unitario = igv_unitario + parseInt(valor_unitario),
         valor_compra = cant * valor_unitario,
         igv_total = cant * igv_unitario,
@@ -293,8 +340,12 @@ var addDetalleCompra = function () {
         '<td name="precio_compra">' + detalle_compra_actual.precio_compra + '</td>' +
         '</tr>'
     $("#tabla-detalle-compra").removeClass("hidden");
-    $(det).appendTo("#tabla-detalle-compra>tbody");
-
+    $(det).appendTo("#tabla-detalle-compra>tbody").click(function () {
+        cleanData("table", "tabla-detalle-compra");
+        $(this).addClass("active");
+        $("#del-detalle-venta").removeClass("disabled");
+    });
+    limpiarCamposAddDet("entrada");
 }
 
 var addEntradaMercancia = function () {
@@ -322,9 +373,13 @@ var addEntradaMercancia = function () {
     })
 }
 
+
+var eliminarDetalleCompra = function () {
+    $("#tabla-detalle-compra>tbody>tr.active").remove();
+}
+
 var verDetallesCompra = function () {
     var compra = getRecord("tabla-compras");
-    console.log(compra);
     token = $("input[name=csrfmiddlewaretoken]").attr("value");
     $.ajax({
         url: "detalles",
@@ -336,8 +391,6 @@ var verDetallesCompra = function () {
             id_compra: compra.id,
         },
         success: function (data) {
-            //$(location).attr("href", "/entrada");
-            console.log(data);
             $("#tabla-d-compra-modal>tbody>tr").each(function (index, th) {
                 $(th).remove();
             })

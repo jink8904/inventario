@@ -1,6 +1,7 @@
 {% extends "index.html" %}
 
 {% block content %}
+    {#    modal eliminar empresa#}
     <div class="modal fade confirm-del" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-xs">
@@ -14,6 +15,7 @@
                     <form action="del" method="post" id="del-table" accion="del">
                         {% csrf_token %}
                         <input type="text" name="ruc" class="hidden">
+
                         <p>Est&aacute; seguro que desea eliminar la empresa seleccionada</p>
 
                         <div class="btn-modals">
@@ -25,8 +27,29 @@
             </div>
         </div>
     </div>
+    {#    modal seleccionar periodo#}
+    <div class="modal fade" tabindex="-1" id="sel-periodo" role="dialog" aria-labelledby="mySmallModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-xs">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button data-dismiss="modal" class="close" type="button"><span aria-hidden="true">×</span><span
+                            class="sr-only">Close</span></button>
+                    <h4 id="mySmallModalLabel" class="modal-title">Seleccionar per&iacute;odo</h4>
+                </div>
+                <div class="modal-body">
+                    {% csrf_token %}
+                    {% include "empresa/sel-periodo.html" %}
+                    <div class="btn-modals">
+                        <button class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        <button class="btn btn-primary" type="submit" action="sel-empresa">Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
     <div class="col-md-10 col-md-offset-1">
-        <!-- Modal -->
         <div class="modal fade" id="form-empresa" tabindex="-1" role="dialog" aria-labelledby="form-empresaLabel"
              aria-hidden="true">
             <div class="modal-dialog">

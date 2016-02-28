@@ -44,13 +44,34 @@ $(document).ready(function () {
         }
     });
     //Manejo global
-    $("table[select=true]>tbody>tr").click(function (evt) {
+    $("table[select]>tbody>tr").click(function (evt) {
         var id = $(this).parent().parent().attr("id");
         cleanData('table', id);
         var tr = $(this);
         tr.addClass('active');
         updateButtons(id);
     })
+
+    $("span input[type=checkbox]").click(function () {
+        if ($(this).parent().hasClass("checked")) {
+            $(this).parent().removeClass("checked")
+            $(this).val('off');
+        } else {
+            $(this).parent().addClass("checked")
+            $(this).val('on')
+        }
+    })
+
+    $('.pickadate').pickadate({
+        labelMonthNext: 'Ir al mes siguiente ',
+        labelMonthPrev: 'Ir al mes anterior',
+        formatSubmit: 'yyyy/mm/dd',
+        monthsFull: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+        weekdaysShort: ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
+        today: 'Hoy',
+        clear: 'Limpiar',
+        close: 'Cerrar',
+    });
 
 
     //login
@@ -68,14 +89,23 @@ $(document).ready(function () {
         updateRecords("tabla-empresa");
         $("#form-empresa-label").html("Modificar empresa");
     })
+
     $("button[table=tabla-empresa][accion=del]").click(function () {
-        var ruc = $("#tabla-empresa tr.active td[key=ruc]").html();
-        $("form[accion=del] input[name=ruc]").val(ruc);
+        if (!$(this).hasClass("disabled")) {
+            $(".confirm-del").modal();
+            var ruc = $("#tabla-empresa tr.active td[key=ruc]").html();
+            $("form[accion=del] [name=ruc]").val(ruc);
+        }
+    })
+
+    $("button[action=sel-empresa]").click(function () {
+        selEmpresa();
     })
 
     $("#sel-empresa").click(function () {
-        selEmpresa();
+        $("#sel-periodo").modal();
     })
+
 
     //categoria
     $("button[table=tabla-categoria][accion=add]").click(function () {
@@ -106,7 +136,6 @@ $(document).ready(function () {
     })
     $("#id_unidad>option").click(function () {
         var abrv = $(this).attr("abrv");
-        console.log(abrv);
         $("#id_abreviatura").val(abrv)
     })
 
@@ -143,8 +172,10 @@ $(document).ready(function () {
         $("form[accion=del] input[name=identificador]").val(identificador);
     })
 
-    //salida de mercancia
-    $("#datos-producto-salida [name=codigo]>option").click(function () {
+    //---------------- Salida de mercancia -------------------------
+
+    $("#datos-producto-salida [name=codigo]>option," +
+        "#datos-producto-salida [name=producto]>option").click(function () {
         var id = $(this).attr("value");
         var selector_id = "#datos-producto-salida";
         llenarDatosProducto(id, selector_id);
@@ -174,13 +205,19 @@ $(document).ready(function () {
         $("#datos-comprobante-salida [name=identificador]").val(value);
     })
 
+    $("#del-detalle-venta").click(function () {
+        $(this).addClass("disabled");
+        eliminarDetalleVenta()
+    })
+
     //ver detalle de venta
     $("#ver-detalle-venta").click(function () {
         verDetallesVenta();
     })
 
-    //entrada de mercancia
-    $("#datos-producto-entrada select[name=codigo]>option").click(function () {
+    //------------- Entrada de mercancia ---------------------
+    $("#datos-producto-entrada select[name=codigo]>option," +
+        "#datos-producto-entrada select[name=producto]>option").click(function () {
         var id = $(this).attr("value");
         var selector_id = "#datos-producto-entrada";
         llenarDatosProducto(id, selector_id);
@@ -215,5 +252,11 @@ $(document).ready(function () {
     $("#ver-detalle-compra").click(function () {
         verDetallesCompra();
     })
+
+    $("#del-detalle-compra").click(function () {
+        $(this).addClass("disabled");
+        eliminarDetalleCompra()
+    })
+
 
 })

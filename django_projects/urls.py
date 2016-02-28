@@ -39,6 +39,8 @@ urlpatterns = patterns('',
     url(r'^entrada/$', 'control_inventario.views.entrada_mercancia', name='entrada_mercancia'),
     url(r'^entrada/add$', 'control_inventario.views.add_entrada_mercancia', name='add_entrada_mercancia'),
     url(r'^entrada/detalles$', 'control_inventario.views.detalle_compra', name='detalle_venta'),
+   # urls-registo de ventas
+    url(r'^registro-ventas/$', 'control_inventario.views.registro_ventas', name='registro_ventas'),
 
 
 

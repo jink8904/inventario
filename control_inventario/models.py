@@ -137,3 +137,7 @@ class DetalleVenta(models.Model):
     importe = models.DecimalField(max_digits=6, decimal_places=2)
     producto = models.ForeignKey(Producto)
     venta = models.ForeignKey(Venta)
+
+
+class TipoOperacion(models.Model):
+    denominacion = models.CharField(max_length=50)
