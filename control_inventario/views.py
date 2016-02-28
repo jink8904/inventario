@@ -90,6 +90,7 @@ def select_empresa(request):
         "id": datos.get("empresa[id]"),
         "direccion": datos.get("empresa[direccion]"),
         "anno_inicio": datos.get("empresa[anno_inicio]"),
+        "mes": datos.get("empresa[mes]"),
     }
     json_data = json.dumps({"success": True})
     return HttpResponse(json_data, mimetype="application/json")
@@ -617,6 +618,7 @@ def detalle_compra(request):
     args['success'] = True
     json_data = json.dumps(args)
     return HttpResponse(json_data, mimetype="application/json")
+
 
 # ------------ Registro de ventas -----------------
 def registro_ventas(request):
