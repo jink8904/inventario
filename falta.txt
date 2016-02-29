@@ -1,6 +1,2 @@
-Hacer Crud de:
-    Categoria
-    Producto
-    Cliente
-    Proveedor
-
+**** Salida de mercancia **********
+Averiguar problema checkbox del igv, se queda con el ultimo valor cuando se recarga la pagina.

@@ -52,6 +52,7 @@ $(document).ready(function () {
         updateButtons(id);
     })
 
+    //checkbox fix
     $("span input[type=checkbox]").click(function () {
         if ($(this).parent().hasClass("checked")) {
             $(this).parent().removeClass("checked")
@@ -60,6 +61,16 @@ $(document).ready(function () {
             $(this).parent().addClass("checked")
             $(this).val('on')
         }
+    })
+
+    //radio fix
+    $("span input[type=radio]").click(function () {
+        var name = $(this).attr("name");
+        if ($("span input[type=radio][name=" + name + "]").parent().hasClass("checked")) {
+            $("span input[type=radio][name=" + name + "]").parent().removeClass("checked");
+        }
+        $(this).parent().addClass("checked");
+
     })
 
     $('.pickadate').pickadate({

@@ -26,15 +26,13 @@
     <div class="col-md-12">
         <div class="panel panel-flat">
             <div class="panel-heading">
-                <h4 class="panel-title">Salida de mercader&iacute;a - Ventas (Normal)</h4>
+                <h4 class="panel-title">Registro de ventas</h4>
 
                 <div class="heading-elements">
                     <ul class="icons-list">
                         <li>
                             <a data-action="collapse"></a>
                         </li>
-                        {#                        <li><a data-action="reload"></a></li>#}
-                        {#                        <li><a data-action="close"></a></li>#}
                     </ul>
                 </div>
                 <a class="heading-elements-toggle">
@@ -46,31 +44,30 @@
                 <div class="nav-panel col-md-12">
                     <button class="btn btn-primary" type="submit" id="add-salida-merc">Guardar</button>
                     <button class="btn btn-primary" type="submit">Eliminar</button>
-                    {#                    <button data-target="#modal_default" data-toggle="modal" class="btn btn-primary" type="button">Ver detalles</button>#}
                     <button class="btn btn-primary" type="submit" id="ver-detalle-venta">Ver detalles</button>
                 </div>
                 <div class="tabbable">
                     <ul class="nav nav-tabs nav-justified">
                         <li class="active">
-                            <a data-toggle="tab" href="#registro_salidas"
-                               aria-expanded="true">Registro de salidas
+                            <a data-toggle="tab" href="#detalles_comprobante_regventa"
+                               aria-expanded="false">Detalles del comprobante y cliente
                             </a>
                         </li>
                         <li class="">
-                            <a data-toggle="tab" href="#detalles_comprobante_venta"
-                               aria-expanded="false">Detalles del comprobante
+                            <a data-toggle="tab" href="#imp-comprobante"
+                               aria-expanded="true">Importe del comprobante
                             </a>
                         </li>
                     </ul>
 
                     <div class="tab-content">
-                        <div id="registro_salidas" class="tab-pane active">
-                            {% include "salida_mercancia/table-venta.html" %}
+                        <div id="detalles_comprobante_regventa" class="tab-pane active">
+                            {% include "registro_ventas/form-reg-venta.html" %}
+                            {% include "registro_ventas/table-reg-venta.html" %}
                         </div>
 
-                        <div id="detalles_comprobante_venta" class="tab-pane">
-                            {% include "salida_mercancia/form-salida.html" %}
-                            {% include "salida_mercancia/table-detalle-venta.html" %}
+                        <div id="imp-comprobante" class="tab-pane">
+                            {% include "registro_ventas/form-imp-comprobante.html" %}
                         </div>
                     </div>
                 </div>
